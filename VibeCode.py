@@ -31,7 +31,9 @@ SNAKE_WIDTH = 40
 SNAKE_HEIGHT = 25
 # Horizontal movement tick. Vertical movement is twice as fast.
 SNAKE_TICK_HOR = 0.1
-SNAKE_TICK_VER = SNAKE_TICK_HOR / 2
+# Vertical movement felt faster than horizontal, so make it slower
+# by using a longer tick duration for up/down moves.
+SNAKE_TICK_VER = SNAKE_TICK_HOR * 2
 
 # Define the seven standard Tetris pieces using coordinate sets
 PIECES = {
@@ -330,7 +332,8 @@ def start_menu(stdscr):
         elif key in (curses.KEY_ENTER, 10, 13):
             return current
         elif key == ord("q"):
-            return 1
+            # Treat 'q' as selecting "Quit"
+            return len(options) - 1
 
 
 def main(stdscr):
