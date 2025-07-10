@@ -12,9 +12,10 @@ for a bit more firepower. The aliens themselves are drawn larger than a single
 character so they are easier targets. Each time the invaders descend a row they
 speed up slightly to keep the pressure on.
 
-Ice Climber uses almost the entire screen for its climbing arena. Break the
-blocks above you with the jump key and work your way upward through the gaps to
-reach the top.
+Ice Climber uses most of the screen for its climbing arena. If your terminal is
+smaller than the default 60x30 field the game will shrink to fit so it starts
+properly. Break the blocks above you with the jump key and work your way upward
+through the gaps to reach the top.
 
 The game relies on the `curses` module for drawing. On Windows systems the
 standard Python distribution does not ship with curses. To run the game
