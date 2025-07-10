@@ -202,13 +202,43 @@ class Tetris:
             self.step()
             self.draw(stdscr)
         stdscr.nodelay(False)
+        stdscr.addstr(BOARD_HEIGHT + 2, 0, "Press any key to return")
+        stdscr.refresh()
         stdscr.getch()
 
 
-def main():
-    game = Tetris()
-    curses.wrapper(game.run)
+def start_menu(stdscr):
+    """Display the startup menu and return the selected option index."""
+    curses.curs_set(0)
+    options = ["Play Tetris", "Quit"]
+    current = 0
+    while True:
+        stdscr.clear()
+        stdscr.addstr(0, 0, "Select a game:")
+        for i, option in enumerate(options):
+            marker = "-> " if i == current else "   "
+            stdscr.addstr(2 + i, 0, marker + option)
+        stdscr.refresh()
+        key = stdscr.getch()
+        if key in (curses.KEY_UP, ord("k")):
+            current = (current - 1) % len(options)
+        elif key in (curses.KEY_DOWN, ord("j")):
+            current = (current + 1) % len(options)
+        elif key in (curses.KEY_ENTER, 10, 13):
+            return current
+        elif key == ord("q"):
+            return 1
+
+
+def main(stdscr):
+    while True:
+        choice = start_menu(stdscr)
+        if choice == 0:
+            game = Tetris()
+            game.run(stdscr)
+        else:
+            break
 
 
 if __name__ == "__main__":
-    main()
+    curses.wrapper(main)
