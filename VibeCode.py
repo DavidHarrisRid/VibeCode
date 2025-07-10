@@ -27,9 +27,11 @@ BOARD_HEIGHT = 22
 TICK_RATE = 0.5  # seconds between automatic piece drops
 
 # Snake constants
-SNAKE_WIDTH = 20
-SNAKE_HEIGHT = 20
-SNAKE_TICK = 0.1
+SNAKE_WIDTH = 40
+SNAKE_HEIGHT = 25
+# Horizontal movement tick. Vertical movement is twice as fast.
+SNAKE_TICK_HOR = 0.1
+SNAKE_TICK_VER = SNAKE_TICK_HOR / 2
 
 # Define the seven standard Tetris pieces using coordinate sets
 PIECES = {
@@ -264,7 +266,12 @@ class Snake:
 
     def step(self):
         now = time.time()
-        if now - self.last_move > SNAKE_TICK:
+        tick = (
+            SNAKE_TICK_VER
+            if self.direction in ((0, 1), (0, -1))
+            else SNAKE_TICK_HOR
+        )
+        if now - self.last_move > tick:
             self.move_snake()
             self.last_move = now
 
