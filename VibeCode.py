@@ -441,6 +441,9 @@ class IceClimber:
             for x in range(self.width):
                 if not (gap <= x < gap + 6):
                     self.board[y][x] = 1
+        # Add a solid base so the player doesn't immediately fall
+        for x in range(self.width):
+            self.board[self.height - 1][x] = 1
         self.player_x = self.width // 2
         self.player_y = self.height - 2
         self.vy = 0
