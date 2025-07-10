@@ -38,7 +38,7 @@ SNAKE_TICK_VER = SNAKE_TICK_HOR * 2
 # Space Invaders constants - wide play area similar to the arcade game
 INV_WIDTH = 60
 INV_HEIGHT = 20
-INV_TICK = 0.1
+INV_TICK = 0.2
 
 # Define the seven standard Tetris pieces using coordinate sets
 PIECES = {
@@ -322,7 +322,8 @@ class SpaceInvaders:
 
     def __init__(self):
         self.player_x = INV_WIDTH // 2
-        self.bullet = None  # (x, y) position of active bullet
+        # Allow up to two bullets on screen
+        self.bullets = []  # list of (x, y) positions for active bullets
         self.aliens = []
         self.direction = 1
         self.last_move = time.time()
@@ -331,9 +332,10 @@ class SpaceInvaders:
         self.setup_aliens()
 
     def setup_aliens(self):
-        for row in range(5):
-            for col in range(11):
-                x = 3 + col * 4
+        # Fewer aliens for a more compact formation
+        for row in range(3):
+            for col in range(5):
+                x = 6 + col * 8
                 y = 2 + row * 2
                 self.aliens.append([x, y])
 
@@ -350,21 +352,22 @@ class SpaceInvaders:
                 if alien[1] >= INV_HEIGHT - 1:
                     self.game_over = True
 
-    def step_bullet(self):
-        if self.bullet:
-            x, y = self.bullet
+    def step_bullets(self):
+        new_bullets = []
+        for x, y in self.bullets:
             y -= 1
             if y <= 0:
-                self.bullet = None
-            else:
-                for alien in list(self.aliens):
-                    if alien[0] == x and alien[1] == y:
-                        self.aliens.remove(alien)
-                        self.bullet = None
-                        self.score += 10
-                        break
-                else:
-                    self.bullet = (x, y)
+                continue
+            hit = False
+            for alien in list(self.aliens):
+                if alien[0] == x and alien[1] == y:
+                    self.aliens.remove(alien)
+                    self.score += 10
+                    hit = True
+                    break
+            if not hit:
+                new_bullets.append((x, y))
+        self.bullets = new_bullets
 
     def draw(self, stdscr):
         stdscr.clear()
@@ -379,8 +382,7 @@ class SpaceInvaders:
             stdscr.addstr(INV_HEIGHT // 2, INV_WIDTH // 2 - 5, "GAME OVER")
         for alien in self.aliens:
             stdscr.addstr(alien[1], alien[0] + 1, "M")
-        if self.bullet:
-            x, y = self.bullet
+        for x, y in self.bullets:
             stdscr.addstr(y, x + 1, "|")
         stdscr.addstr(INV_HEIGHT - 1, self.player_x + 1, "A")
         stdscr.refresh()
@@ -395,15 +397,15 @@ class SpaceInvaders:
             elif key == curses.KEY_RIGHT and self.player_x < INV_WIDTH - 2:
                 self.player_x += 1
             elif key in (ord(" "), curses.KEY_UP):
-                if not self.bullet:
-                    self.bullet = (self.player_x, INV_HEIGHT - 2)
+                if len(self.bullets) < 2:
+                    self.bullets.append((self.player_x, INV_HEIGHT - 2))
             elif key == ord("q"):
                 break
 
             now = time.time()
             if now - self.last_move > INV_TICK:
                 self.move_aliens()
-                self.step_bullet()
+                self.step_bullets()
                 self.last_move = now
             self.draw(stdscr)
 
