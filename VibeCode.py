@@ -21,8 +21,9 @@ import random
 import time
 
 # Constants for the game
-BOARD_WIDTH = 10
-BOARD_HEIGHT = 20
+# Dimensions of the playing field
+BOARD_WIDTH = 12
+BOARD_HEIGHT = 22
 TICK_RATE = 0.5  # seconds between automatic piece drops
 
 # Define the seven standard Tetris pieces using coordinate sets
@@ -153,17 +154,31 @@ class Tetris:
             self.last_drop_time = now
 
     def draw(self, stdscr):
+        """Render the board, current piece and UI."""
         stdscr.clear()
+        # Draw borders
+        horizontal = "-" * (BOARD_WIDTH * 2)
+        stdscr.addstr(0, 1, horizontal)
+        stdscr.addstr(BOARD_HEIGHT + 1, 1, horizontal)
+        for y in range(1, BOARD_HEIGHT + 1):
+            stdscr.addstr(y, 0, "|")
+            stdscr.addstr(y, BOARD_WIDTH * 2 + 1, "|")
+
+        # Draw locked cells
         for y in range(BOARD_HEIGHT):
             for x in range(BOARD_WIDTH):
                 if self.board[y][x]:
-                    stdscr.addstr(y, x * 2, "[]")
+                    stdscr.addstr(y + 1, x * 2 + 1, "[]")
                 else:
-                    stdscr.addstr(y, x * 2, "  ")
+                    stdscr.addstr(y + 1, x * 2 + 1, "  ")
+
+        # Draw the active piece
         for x, y in self.current.get_cells():
             if y >= 0:
-                stdscr.addstr(y, x * 2, "[]")
-        stdscr.addstr(0, BOARD_WIDTH * 2 + 2, f"Score: {self.score}")
+                stdscr.addstr(y + 1, x * 2 + 1, "[]")
+
+        # Score and game over message
+        stdscr.addstr(1, BOARD_WIDTH * 2 + 4, f"Score: {self.score}")
         if self.game_over:
             stdscr.addstr(BOARD_HEIGHT // 2, BOARD_WIDTH, "GAME OVER")
         stdscr.refresh()
