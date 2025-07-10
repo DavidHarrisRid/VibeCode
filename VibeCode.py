@@ -26,6 +26,11 @@ BOARD_WIDTH = 12
 BOARD_HEIGHT = 22
 TICK_RATE = 0.5  # seconds between automatic piece drops
 
+# Snake constants
+SNAKE_WIDTH = 20
+SNAKE_HEIGHT = 20
+SNAKE_TICK = 0.1
+
 # Define the seven standard Tetris pieces using coordinate sets
 PIECES = {
     'I': [
@@ -207,10 +212,101 @@ class Tetris:
         stdscr.getch()
 
 
+class Snake:
+    """Simple Snake game."""
+
+    def __init__(self):
+        mid_x = SNAKE_WIDTH // 2
+        mid_y = SNAKE_HEIGHT // 2
+        self.snake = [(mid_x, mid_y)]
+        self.direction = (1, 0)
+        self.food = self.new_food()
+        self.score = 0
+        self.game_over = False
+        self.last_move = time.time()
+
+    def new_food(self):
+        while True:
+            fx = random.randint(1, SNAKE_WIDTH - 2)
+            fy = random.randint(1, SNAKE_HEIGHT - 2)
+            if (fx, fy) not in self.snake:
+                return (fx, fy)
+
+    def move_snake(self):
+        head_x, head_y = self.snake[0]
+        dx, dy = self.direction
+        new_head = (head_x + dx, head_y + dy)
+        if (
+            new_head in self.snake
+            or new_head[0] <= 0
+            or new_head[0] >= SNAKE_WIDTH - 1
+            or new_head[1] <= 0
+            or new_head[1] >= SNAKE_HEIGHT - 1
+        ):
+            self.game_over = True
+            return
+        self.snake.insert(0, new_head)
+        if new_head == self.food:
+            self.score += 1
+            self.food = self.new_food()
+        else:
+            self.snake.pop()
+
+    def change_dir(self, key):
+        if key == curses.KEY_UP and self.direction != (0, 1):
+            self.direction = (0, -1)
+        elif key == curses.KEY_DOWN and self.direction != (0, -1):
+            self.direction = (0, 1)
+        elif key == curses.KEY_LEFT and self.direction != (1, 0):
+            self.direction = (-1, 0)
+        elif key == curses.KEY_RIGHT and self.direction != (-1, 0):
+            self.direction = (1, 0)
+
+    def step(self):
+        now = time.time()
+        if now - self.last_move > SNAKE_TICK:
+            self.move_snake()
+            self.last_move = now
+
+    def draw(self, stdscr):
+        stdscr.clear()
+        horizontal = "-" * SNAKE_WIDTH
+        stdscr.addstr(0, 1, horizontal)
+        stdscr.addstr(SNAKE_HEIGHT, 1, horizontal)
+        for y in range(1, SNAKE_HEIGHT):
+            stdscr.addstr(y, 0, "|")
+            stdscr.addstr(y, SNAKE_WIDTH + 1, "|")
+        for i, (x, y) in enumerate(self.snake):
+            char = "@" if i == 0 else "o"
+            stdscr.addstr(y, x + 1, char)
+        fx, fy = self.food
+        stdscr.addstr(fy, fx + 1, "*")
+        stdscr.addstr(SNAKE_HEIGHT + 1, 0, f"Score: {self.score}")
+        if self.game_over:
+            stdscr.addstr(SNAKE_HEIGHT // 2, SNAKE_WIDTH // 2 - 4, "GAME OVER")
+        stdscr.refresh()
+
+    def run(self, stdscr):
+        curses.curs_set(0)
+        stdscr.nodelay(True)
+        while not self.game_over:
+            key = stdscr.getch()
+            if key in (curses.KEY_UP, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_RIGHT):
+                self.change_dir(key)
+            elif key == ord("q"):
+                break
+            self.step()
+            self.draw(stdscr)
+        stdscr.nodelay(False)
+        stdscr.addstr(SNAKE_HEIGHT + 2, 0, "Press any key to return")
+        stdscr.refresh()
+        stdscr.getch()
+
+
 def start_menu(stdscr):
     """Display the startup menu and return the selected option index."""
     curses.curs_set(0)
-    options = ["Play Tetris", "Quit"]
+    options = ["Play Tetris", "Play Snake", "Quit"]
     current = 0
     while True:
         stdscr.clear()
@@ -235,6 +331,9 @@ def main(stdscr):
         choice = start_menu(stdscr)
         if choice == 0:
             game = Tetris()
+            game.run(stdscr)
+        elif choice == 1:
+            game = Snake()
             game.run(stdscr)
         else:
             break
