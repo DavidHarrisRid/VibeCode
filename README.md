@@ -16,3 +16,6 @@ Then launch the game with:
 ```bash
 python VibeCode.py
 ```
+
+If you see an error about `curses` being missing, make sure you've installed the
+`windows-curses` package in the same Python environment.

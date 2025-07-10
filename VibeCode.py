@@ -11,9 +11,11 @@ try:
 except ImportError as e:
     import sys
     if sys.platform.startswith("win"):
-        raise ImportError(
-            "curses is missing. Install it with 'pip install windows-curses'"
-        ) from e
+        print(
+            "curses is missing. Install it with 'pip install windows-curses'",
+            file=sys.stderr,
+        )
+        raise SystemExit(1) from e
     raise
 import random
 import time
