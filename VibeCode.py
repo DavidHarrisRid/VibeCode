@@ -41,6 +41,12 @@ INV_HEIGHT = 20
 INV_TICK = 0.2
 ALIEN_WIDTH = 3  # aliens are drawn wider than one cell
 
+# Ice Climber constants - large play area for vertical climbing
+ICE_WIDTH = 60
+ICE_HEIGHT = 30
+ICE_TICK = 0.1
+ICE_JUMP = 3
+
 # Define the seven standard Tetris pieces using coordinate sets
 PIECES = {
     'I': [
@@ -421,10 +427,117 @@ class SpaceInvaders:
         stdscr.getch()
 
 
+class IceClimber:
+    """Simplified Ice Climber clone with basic jumping and block breaking."""
+
+    def __init__(self):
+        self.board = [[0] * ICE_WIDTH for _ in range(ICE_HEIGHT)]
+        # Generate floors with a gap every few rows
+        for y in range(ICE_HEIGHT - 3, 0, -4):
+            gap = random.randint(5, ICE_WIDTH - 10)
+            for x in range(ICE_WIDTH):
+                if not (gap <= x < gap + 6):
+                    self.board[y][x] = 1
+        self.player_x = ICE_WIDTH // 2
+        self.player_y = ICE_HEIGHT - 2
+        self.vy = 0
+        self.win = False
+        self.game_over = False
+
+    def is_free(self, x, y):
+        if x < 0 or x >= ICE_WIDTH or y < 0 or y >= ICE_HEIGHT:
+            return False
+        return self.board[y][x] == 0
+
+    def handle_input(self, key):
+        if key == curses.KEY_LEFT and self.is_free(self.player_x - 1, self.player_y):
+            self.player_x -= 1
+        elif key == curses.KEY_RIGHT and self.is_free(self.player_x + 1, self.player_y):
+            self.player_x += 1
+        elif key in (curses.KEY_UP, ord(" ")):
+            above = self.player_y - 1
+            if above >= 0 and self.board[above][self.player_x]:
+                self.board[above][self.player_x] = 0
+            elif self.vy == 0:
+                self.vy = -ICE_JUMP
+        elif key == ord("q"):
+            self.game_over = True
+
+    def physics(self):
+        if self.vy < 0:
+            next_y = self.player_y - 1
+            if next_y < 0:
+                self.win = True
+                self.vy = 0
+            elif self.board[next_y][self.player_x]:
+                self.board[next_y][self.player_x] = 0
+                self.vy = 1
+            else:
+                self.player_y = next_y
+                self.vy += 1
+        elif self.vy > 0:
+            next_y = self.player_y + 1
+            if next_y >= ICE_HEIGHT:
+                self.game_over = True
+                self.vy = 0
+            elif self.board[next_y][self.player_x]:
+                self.vy = 0
+            else:
+                self.player_y = next_y
+                if self.vy < ICE_JUMP:
+                    self.vy += 1
+        else:
+            if self.player_y + 1 >= ICE_HEIGHT:
+                self.game_over = True
+            elif self.is_free(self.player_x, self.player_y + 1):
+                self.vy = 1
+
+    def draw(self, stdscr):
+        stdscr.clear()
+        horiz = "-" * ICE_WIDTH
+        stdscr.addstr(0, 1, horiz)
+        stdscr.addstr(ICE_HEIGHT + 1, 1, horiz)
+        for y in range(1, ICE_HEIGHT + 1):
+            stdscr.addstr(y, 0, "|")
+            stdscr.addstr(y, ICE_WIDTH + 1, "|")
+        for y in range(ICE_HEIGHT):
+            for x in range(ICE_WIDTH):
+                if self.board[y][x]:
+                    stdscr.addstr(y + 1, x + 1, "#")
+                else:
+                    stdscr.addstr(y + 1, x + 1, " ")
+        if not self.win:
+            stdscr.addstr(self.player_y + 1, self.player_x + 1, "P")
+        if self.game_over:
+            stdscr.addstr(ICE_HEIGHT // 2, ICE_WIDTH // 2 - 4, "GAME OVER")
+        if self.win:
+            stdscr.addstr(ICE_HEIGHT // 2, ICE_WIDTH // 2 - 3, "YOU WIN")
+        stdscr.refresh()
+
+    def run(self, stdscr):
+        curses.curs_set(0)
+        stdscr.nodelay(True)
+        while not self.game_over and not self.win:
+            self.handle_input(stdscr.getch())
+            self.physics()
+            self.draw(stdscr)
+            time.sleep(ICE_TICK)
+        stdscr.nodelay(False)
+        stdscr.addstr(ICE_HEIGHT + 2, 0, "Press any key to return")
+        stdscr.refresh()
+        stdscr.getch()
+
+
 def start_menu(stdscr):
     """Display the startup menu and return the selected option index."""
     curses.curs_set(0)
-    options = ["Play Tetris", "Play Snake", "Play Space Invaders", "Quit"]
+    options = [
+        "Play Tetris",
+        "Play Snake",
+        "Play Space Invaders",
+        "Play Ice Climber",
+        "Quit",
+    ]
     current = 0
     while True:
         stdscr.clear()
@@ -456,6 +569,9 @@ def main(stdscr):
             game.run(stdscr)
         elif choice == 2:
             game = SpaceInvaders()
+            game.run(stdscr)
+        elif choice == 3:
+            game = IceClimber()
             game.run(stdscr)
         else:
             break

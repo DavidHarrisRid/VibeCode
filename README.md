@@ -2,7 +2,7 @@
 
 This repository contains a simple console-based game collection written in
 Python. When you run the program you first see a small menu where you can
-choose to start Tetris, play Snake, play Space Invaders or quit. After a game
+choose to start Tetris, play Snake, play Space Invaders, try Ice Climber or quit. After a game
 ends you are returned to this menu.
 
 The Space Invaders screen is deliberately wider than the other games so the
@@ -11,6 +11,10 @@ is small and begins moving slowly, letting you fire up to two bullets at once
 for a bit more firepower. The aliens themselves are drawn larger than a single
 character so they are easier targets. Each time the invaders descend a row they
 speed up slightly to keep the pressure on.
+
+Ice Climber uses almost the entire screen for its climbing arena. Break the
+blocks above you with the jump key and work your way upward through the gaps to
+reach the top.
 
 The game relies on the `curses` module for drawing. On Windows systems the
 standard Python distribution does not ship with curses. To run the game
