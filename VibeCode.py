@@ -39,6 +39,7 @@ SNAKE_TICK_VER = SNAKE_TICK_HOR * 2
 INV_WIDTH = 60
 INV_HEIGHT = 20
 INV_TICK = 0.2
+ALIEN_WIDTH = 3  # aliens are drawn wider than one cell
 
 # Define the seven standard Tetris pieces using coordinate sets
 PIECES = {
@@ -343,7 +344,7 @@ class SpaceInvaders:
         need_down = False
         for alien in self.aliens:
             alien[0] += self.direction
-            if alien[0] <= 1 or alien[0] >= INV_WIDTH - 2:
+            if alien[0] <= 1 or alien[0] + ALIEN_WIDTH - 1 >= INV_WIDTH - 2:
                 need_down = True
         if need_down:
             self.direction *= -1
@@ -360,7 +361,7 @@ class SpaceInvaders:
                 continue
             hit = False
             for alien in list(self.aliens):
-                if alien[0] == x and alien[1] == y:
+                if alien[1] == y and alien[0] <= x < alien[0] + ALIEN_WIDTH:
                     self.aliens.remove(alien)
                     self.score += 10
                     hit = True
@@ -381,7 +382,7 @@ class SpaceInvaders:
         if self.game_over:
             stdscr.addstr(INV_HEIGHT // 2, INV_WIDTH // 2 - 5, "GAME OVER")
         for alien in self.aliens:
-            stdscr.addstr(alien[1], alien[0] + 1, "M")
+            stdscr.addstr(alien[1], alien[0] + 1, "M" * ALIEN_WIDTH)
         for x, y in self.bullets:
             stdscr.addstr(y, x + 1, "|")
         stdscr.addstr(INV_HEIGHT - 1, self.player_x + 1, "A")
