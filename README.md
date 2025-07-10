@@ -2,8 +2,11 @@
 
 This repository contains a simple console-based game collection written in
 Python. When you run the program you first see a small menu where you can
-choose to start Tetris, play Snake or quit. After a game ends you are returned
-to this menu.
+choose to start Tetris, play Snake, play Space Invaders or quit. After a game
+ends you are returned to this menu.
+
+The Space Invaders screen is deliberately wider than the other games so the
+action more closely resembles the classic arcade layout.
 
 The game relies on the `curses` module for drawing. On Windows systems the
 standard Python distribution does not ship with curses. To run the game

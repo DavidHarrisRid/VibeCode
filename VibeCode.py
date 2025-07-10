@@ -35,6 +35,11 @@ SNAKE_TICK_HOR = 0.1
 # by using a longer tick duration for up/down moves.
 SNAKE_TICK_VER = SNAKE_TICK_HOR * 2
 
+# Space Invaders constants - wide play area similar to the arcade game
+INV_WIDTH = 60
+INV_HEIGHT = 20
+INV_TICK = 0.1
+
 # Define the seven standard Tetris pieces using coordinate sets
 PIECES = {
     'I': [
@@ -312,10 +317,107 @@ class Snake:
         stdscr.getch()
 
 
+class SpaceInvaders:
+    """Very small Space Invaders clone."""
+
+    def __init__(self):
+        self.player_x = INV_WIDTH // 2
+        self.bullet = None  # (x, y) position of active bullet
+        self.aliens = []
+        self.direction = 1
+        self.last_move = time.time()
+        self.game_over = False
+        self.score = 0
+        self.setup_aliens()
+
+    def setup_aliens(self):
+        for row in range(5):
+            for col in range(11):
+                x = 3 + col * 4
+                y = 2 + row * 2
+                self.aliens.append([x, y])
+
+    def move_aliens(self):
+        need_down = False
+        for alien in self.aliens:
+            alien[0] += self.direction
+            if alien[0] <= 1 or alien[0] >= INV_WIDTH - 2:
+                need_down = True
+        if need_down:
+            self.direction *= -1
+            for alien in self.aliens:
+                alien[1] += 1
+                if alien[1] >= INV_HEIGHT - 1:
+                    self.game_over = True
+
+    def step_bullet(self):
+        if self.bullet:
+            x, y = self.bullet
+            y -= 1
+            if y <= 0:
+                self.bullet = None
+            else:
+                for alien in list(self.aliens):
+                    if alien[0] == x and alien[1] == y:
+                        self.aliens.remove(alien)
+                        self.bullet = None
+                        self.score += 10
+                        break
+                else:
+                    self.bullet = (x, y)
+
+    def draw(self, stdscr):
+        stdscr.clear()
+        horiz = "-" * INV_WIDTH
+        stdscr.addstr(0, 1, horiz)
+        stdscr.addstr(INV_HEIGHT, 1, horiz)
+        for y in range(1, INV_HEIGHT):
+            stdscr.addstr(y, 0, "|")
+            stdscr.addstr(y, INV_WIDTH + 1, "|")
+        stdscr.addstr(INV_HEIGHT + 1, 0, f"Score: {self.score}")
+        if self.game_over:
+            stdscr.addstr(INV_HEIGHT // 2, INV_WIDTH // 2 - 5, "GAME OVER")
+        for alien in self.aliens:
+            stdscr.addstr(alien[1], alien[0] + 1, "M")
+        if self.bullet:
+            x, y = self.bullet
+            stdscr.addstr(y, x + 1, "|")
+        stdscr.addstr(INV_HEIGHT - 1, self.player_x + 1, "A")
+        stdscr.refresh()
+
+    def run(self, stdscr):
+        curses.curs_set(0)
+        stdscr.nodelay(True)
+        while not self.game_over and self.aliens:
+            key = stdscr.getch()
+            if key == curses.KEY_LEFT and self.player_x > 1:
+                self.player_x -= 1
+            elif key == curses.KEY_RIGHT and self.player_x < INV_WIDTH - 2:
+                self.player_x += 1
+            elif key in (ord(" "), curses.KEY_UP):
+                if not self.bullet:
+                    self.bullet = (self.player_x, INV_HEIGHT - 2)
+            elif key == ord("q"):
+                break
+
+            now = time.time()
+            if now - self.last_move > INV_TICK:
+                self.move_aliens()
+                self.step_bullet()
+                self.last_move = now
+            self.draw(stdscr)
+
+        stdscr.nodelay(False)
+        msg = "YOU WIN" if not self.aliens else "Press any key to return"
+        stdscr.addstr(INV_HEIGHT + 2, 0, msg)
+        stdscr.refresh()
+        stdscr.getch()
+
+
 def start_menu(stdscr):
     """Display the startup menu and return the selected option index."""
     curses.curs_set(0)
-    options = ["Play Tetris", "Play Snake", "Quit"]
+    options = ["Play Tetris", "Play Snake", "Play Space Invaders", "Quit"]
     current = 0
     while True:
         stdscr.clear()
@@ -344,6 +446,9 @@ def main(stdscr):
             game.run(stdscr)
         elif choice == 1:
             game = Snake()
+            game.run(stdscr)
+        elif choice == 2:
+            game = SpaceInvaders()
             game.run(stdscr)
         else:
             break
