@@ -1,4 +1,20 @@
-import curses
+"""Console Tetris game using curses.
+
+If you run this on Windows, install the optional ``windows-curses``
+package so that ``import curses`` succeeds:
+
+    pip install windows-curses
+"""
+
+try:
+    import curses
+except ImportError as e:
+    import sys
+    if sys.platform.startswith("win"):
+        raise ImportError(
+            "curses is missing. Install it with 'pip install windows-curses'"
+        ) from e
+    raise
 import random
 import time
 
