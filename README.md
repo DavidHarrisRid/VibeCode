@@ -7,9 +7,10 @@ ends you are returned to this menu.
 
 The Space Invaders screen is deliberately wider than the other games so the
 action more closely resembles the classic arcade layout. The invader formation
-is small and moves slowly, and you can fire up to two bullets at once for a
-bit more firepower. The aliens themselves are drawn larger than a single
-character so they are easier targets.
+is small and begins moving slowly, letting you fire up to two bullets at once
+for a bit more firepower. The aliens themselves are drawn larger than a single
+character so they are easier targets. Each time the invaders descend a row they
+speed up slightly to keep the pressure on.
 
 The game relies on the `curses` module for drawing. On Windows systems the
 standard Python distribution does not ship with curses. To run the game

@@ -328,6 +328,8 @@ class SpaceInvaders:
         self.aliens = []
         self.direction = 1
         self.last_move = time.time()
+        # start with the standard tick duration and speed up with each drop
+        self.move_interval = INV_TICK
         self.game_over = False
         self.score = 0
         self.setup_aliens()
@@ -352,6 +354,8 @@ class SpaceInvaders:
                 alien[1] += 1
                 if alien[1] >= INV_HEIGHT - 1:
                     self.game_over = True
+            # Invaders get slightly faster each time they descend
+            self.move_interval = max(self.move_interval * 0.9, 0.05)
 
     def step_bullets(self):
         new_bullets = []
@@ -404,7 +408,7 @@ class SpaceInvaders:
                 break
 
             now = time.time()
-            if now - self.last_move > INV_TICK:
+            if now - self.last_move > self.move_interval:
                 self.move_aliens()
                 self.step_bullets()
                 self.last_move = now
