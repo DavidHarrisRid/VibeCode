@@ -44,7 +44,7 @@ ALIEN_WIDTH = 3  # aliens are drawn wider than one cell
 # Ice Climber constants
 CLIMB_WIDTH = 30
 CLIMB_VISIBLE = 20
-CLIMB_JUMP = 4
+CLIMB_JUMP = 3
 CLIMB_TICK = 0.05
 
 # Define the seven standard Tetris pieces using coordinate sets
@@ -436,21 +436,23 @@ class IceClimber:
         self.player_y = 1
         self.scroll = 0
         self.jump_remaining = 0
+        self.next_platform = random.randint(3, 5)
         self.generate_rows(CLIMB_VISIBLE + 5)
 
     def generate_row(self):
         """Create a new row at the top of the world list."""
         if not self.world:
             row = ['|'] + ['='] * CLIMB_WIDTH + ['|']
+        elif self.next_platform > 0:
+            row = ['|'] + [' '] * CLIMB_WIDTH + ['|']
+            self.next_platform -= 1
         else:
-            if random.random() < 0.4:
-                parts = ['='] * CLIMB_WIDTH
-                gap = random.randint(0, CLIMB_WIDTH - 4)
-                for i in range(4):
-                    parts[gap + i] = ' '
-                row = ['|'] + parts + ['|']
-            else:
-                row = ['|'] + [' '] * CLIMB_WIDTH + ['|']
+            parts = ['='] * CLIMB_WIDTH
+            gap = random.randint(1, CLIMB_WIDTH - 4)
+            for i in range(3):
+                parts[gap + i] = ' '
+            row = ['|'] + parts + ['|']
+            self.next_platform = random.randint(3, 5)
         self.world.append(row)
 
     def generate_rows(self, count):
@@ -520,14 +522,16 @@ class IceClimber:
         stdscr.nodelay(True)
         while self.player_y >= 0:
             key = stdscr.getch()
-            if key == curses.KEY_LEFT:
-                self.move_horiz(-1)
-            elif key == curses.KEY_RIGHT:
-                self.move_horiz(1)
-            elif key == curses.KEY_UP:
-                self.jump()
-            elif key == ord("q"):
-                break
+            while key != -1:
+                if key == curses.KEY_LEFT:
+                    self.move_horiz(-1)
+                if key == curses.KEY_RIGHT:
+                    self.move_horiz(1)
+                if key == curses.KEY_UP:
+                    self.jump()
+                if key == ord("q"):
+                    return
+                key = stdscr.getch()
             self.apply_gravity()
             self.update_scroll()
             self.draw(stdscr)
