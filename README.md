@@ -1,0 +1,45 @@
+# VibeCode Games
+
+This repository contains a simple console-based game collection written in
+Python. When you run the program you first see a small menu where you can
+choose to start Tetris, play Snake, play Space Invaders, play Ice Climber, play
+Pacman, or quit. After a game ends you are returned to this menu.
+
+The Space Invaders screen is deliberately wider than the other games so the
+action more closely resembles the classic arcade layout. The invader formation
+is small and begins moving slowly, letting you fire up to two bullets at once
+for a bit more firepower. The aliens themselves are drawn larger than a single
+character so they are easier targets. Each time the invaders descend a row they
+speed up slightly to keep the pressure on.
+
+Ice Climber is a vertical climbing game. Platforms are spaced every two
+rows so they are always within reach of the climber's four-block jump. Each row
+is bordered so you know exactly where the edges are. Jumping breaks the
+platform above you and launches the climber a few rows upward, and you can hold
+a direction key while jumping to steer in midair. As you ascend the game keeps
+generating new rows so the level is effectively endless. Your score rises with
+the highest point you reach. Keep moving upward—if you slip below the bottom of
+the visible area the game is over.
+
+Pacman offers a small maze to explore. Collect all the dots while avoiding a
+single wandering ghost. If the ghost catches you the game ends. Clear the maze
+to win.
+
+
+The game relies on the `curses` module for drawing. On Windows systems the
+standard Python distribution does not ship with curses. To run the game
+install the [windows-curses](https://pypi.org/project/windows-curses/) package
+first:
+
+```bash
+pip install windows-curses
+```
+
+Then launch the collection with:
+
+```bash
+python VibeCode.py
+```
+
+If you see an error about `curses` being missing, make sure you've installed the
+`windows-curses` package in the same Python environment.
