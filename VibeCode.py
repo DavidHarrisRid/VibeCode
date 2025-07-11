@@ -44,7 +44,7 @@ ALIEN_WIDTH = 3  # aliens are drawn wider than one cell
 # Ice Climber constants
 CLIMB_WIDTH = 30
 CLIMB_VISIBLE = 20
-CLIMB_JUMP = 3
+CLIMB_JUMP = 4
 CLIMB_TICK = 0.05
 
 # Define the seven standard Tetris pieces using coordinate sets
