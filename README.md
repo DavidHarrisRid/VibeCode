@@ -12,7 +12,7 @@ for a bit more firepower. The aliens themselves are drawn larger than a single
 character so they are easier targets. Each time the invaders descend a row they
 speed up slightly to keep the pressure on.
 
-Ice Climber is a vertical climbing game. Platforms are spaced every one or two
+Ice Climber is a vertical climbing game. Platforms are spaced every two
 rows so they are always within reach of the climber's three-block jump. Each row
 is bordered so you know exactly where the edges are. Jumping breaks the
 platform above you and launches the climber a few rows upward, and you can hold
