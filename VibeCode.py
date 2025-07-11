@@ -24,28 +24,31 @@ import time
 # Dimensions of the playing field
 BOARD_WIDTH = 12
 BOARD_HEIGHT = 22
-TICK_RATE = 0.5  # seconds between automatic piece drops
+# Drop pieces a little faster so held moves kick in sooner
+TICK_RATE = 0.25  # seconds between automatic piece drops
 
 # Snake constants
 SNAKE_WIDTH = 40
 SNAKE_HEIGHT = 25
 # Horizontal movement tick. Vertical movement is twice as fast.
-SNAKE_TICK_HOR = 0.1
-# Vertical movement felt faster than horizontal, so make it slower
-# by using a longer tick duration for up/down moves.
-SNAKE_TICK_VER = SNAKE_TICK_HOR * 2
+SNAKE_TICK_HOR = 0.05
+# Up/down moves use a slightly longer delay than horizontal ones
+SNAKE_TICK_VER = SNAKE_TICK_HOR * 1.7
 
 # Space Invaders constants - wide play area similar to the arcade game
 INV_WIDTH = 60
 INV_HEIGHT = 20
-INV_TICK = 0.2
+INV_TICK = 0.1
 ALIEN_WIDTH = 3  # aliens are drawn wider than one cell
 
 # Ice Climber constants
 CLIMB_WIDTH = 30
 CLIMB_VISIBLE = 20
 CLIMB_JUMP = 4
-CLIMB_TICK = 0.05
+# Faster tick so moves repeat quicker
+CLIMB_TICK = 0.025
+# Time between falling steps when the climber is not jumping
+CLIMB_FALL_SPEED = 0.7
 
 # Define the seven standard Tetris pieces using coordinate sets
 PIECES = {
@@ -434,6 +437,7 @@ class IceClimber:
         self.world = []  # bottom-up rows stored as lists of chars
         self.player_x = CLIMB_WIDTH // 2
         self.player_y = 1
+        self.last_fall = time.time()
         self.scroll = 0
         self.jump_remaining = 0
         self.score = 0
@@ -504,8 +508,13 @@ class IceClimber:
             else:
                 self.jump_remaining = 0
             self.jump_remaining -= 1
+            # reset fall timer while jumping so falling waits
+            self.last_fall = time.time()
         elif not self.on_ground():
-            self.player_y -= 1
+            now = time.time()
+            if now - self.last_fall >= CLIMB_FALL_SPEED:
+                self.player_y -= 1
+                self.last_fall = now
 
     def update_scroll(self):
         target = self.player_y - CLIMB_VISIBLE // 2
