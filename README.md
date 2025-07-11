@@ -12,10 +12,11 @@ for a bit more firepower. The aliens themselves are drawn larger than a single
 character so they are easier targets. Each time the invaders descend a row they
 speed up slightly to keep the pressure on.
 
-Ice Climber is a vertical climbing game. Platforms appear every few rows with
-gaps you must jump through. Each row is bordered so you know exactly where the
-edges are. Jumping breaks the platform above you and launches the climber a few
-rows upward, and you can hold a direction key while jumping to steer in midair.
+Ice Climber is a vertical climbing game. Platforms are spaced every one or two
+rows so they are always within reach of the climber's three-block jump. Each row
+is bordered so you know exactly where the edges are. Jumping breaks the
+platform above you and launches the climber a few rows upward, and you can hold
+a direction key while jumping to steer in midair.
 Keep moving upward—if you slip below the bottom of the visible area the game is
 over.
 

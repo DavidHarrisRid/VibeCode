@@ -436,7 +436,8 @@ class IceClimber:
         self.player_y = 1
         self.scroll = 0
         self.jump_remaining = 0
-        self.next_platform = random.randint(3, 5)
+        # number of blank rows until the next platform is added
+        self.next_platform = random.randint(1, 2)
         self.generate_rows(CLIMB_VISIBLE + 5)
 
     def generate_row(self):
@@ -452,7 +453,8 @@ class IceClimber:
             for i in range(3):
                 parts[gap + i] = ' '
             row = ['|'] + parts + ['|']
-            self.next_platform = random.randint(3, 5)
+            # after placing a platform, wait 1-2 rows before the next
+            self.next_platform = random.randint(1, 2)
         self.world.append(row)
 
     def generate_rows(self, count):
