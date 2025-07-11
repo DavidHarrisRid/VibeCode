@@ -44,7 +44,7 @@ ALIEN_WIDTH = 3  # aliens are drawn wider than one cell
 # Ice Climber constants
 CLIMB_WIDTH = 30
 CLIMB_VISIBLE = 20
-CLIMB_JUMP = 3
+CLIMB_JUMP = 4
 CLIMB_TICK = 0.05
 
 # Define the seven standard Tetris pieces using coordinate sets
@@ -431,7 +431,7 @@ class IceClimber:
     """Simple vertical climbing game."""
 
     def __init__(self):
-        self.world = []  # bottom-up rows
+        self.world = []  # bottom-up rows stored as lists of chars
         self.player_x = CLIMB_WIDTH // 2
         self.player_y = 1
         self.scroll = 0
@@ -439,17 +439,18 @@ class IceClimber:
         self.generate_rows(CLIMB_VISIBLE + 5)
 
     def generate_row(self):
+        """Create a new row at the top of the world list."""
         if not self.world:
-            row = "|" + "=" * CLIMB_WIDTH + "|"
+            row = ['|'] + ['='] * CLIMB_WIDTH + ['|']
         else:
-            if random.randint(0, 3) == 0:
-                parts = ["="] * CLIMB_WIDTH
-                gap = random.randint(0, CLIMB_WIDTH - 3)
-                for i in range(3):
-                    parts[gap + i] = " "
-                row = "|" + "".join(parts) + "|"
+            if random.random() < 0.4:
+                parts = ['='] * CLIMB_WIDTH
+                gap = random.randint(0, CLIMB_WIDTH - 4)
+                for i in range(4):
+                    parts[gap + i] = ' '
+                row = ['|'] + parts + ['|']
             else:
-                row = "|" + " " * CLIMB_WIDTH + "|"
+                row = ['|'] + [' '] * CLIMB_WIDTH + ['|']
         self.world.append(row)
 
     def generate_rows(self, count):
@@ -461,6 +462,11 @@ class IceClimber:
             self.generate_row()
         return self.world[y][x]
 
+    def set_cell(self, x, y, ch):
+        while y >= len(self.world):
+            self.generate_row()
+        self.world[y][x] = ch
+
     def on_ground(self):
         if self.player_y == 0:
             return True
@@ -468,7 +474,7 @@ class IceClimber:
 
     def move_horiz(self, dx):
         nx = self.player_x + dx
-        if 0 < nx < CLIMB_WIDTH + 1 and self.cell(nx, self.player_y) == " ":
+        if 0 < nx < CLIMB_WIDTH + 1 and self.cell(nx, self.player_y) == ' ':
             self.player_x = nx
 
     def jump(self):
@@ -478,7 +484,11 @@ class IceClimber:
     def apply_gravity(self):
         if self.jump_remaining > 0:
             ny = self.player_y + 1
-            if self.cell(self.player_x, ny) == " ":
+            above = self.cell(self.player_x, ny)
+            if above == ' ':
+                self.player_y = ny
+            elif above == '=':
+                self.set_cell(self.player_x, ny, ' ')
                 self.player_y = ny
             else:
                 self.jump_remaining = 0
@@ -493,13 +503,16 @@ class IceClimber:
 
     def draw(self, stdscr):
         stdscr.clear()
+        horiz = '+' + '-' * CLIMB_WIDTH + '+'
+        stdscr.addstr(0, 0, horiz)
         for i in range(CLIMB_VISIBLE):
             idx = self.scroll + CLIMB_VISIBLE - 1 - i
-            row = self.cell(0, idx)
-            stdscr.addstr(i, 0, row)
-        sy = CLIMB_VISIBLE - 1 - (self.player_y - self.scroll)
-        if 0 <= sy < CLIMB_VISIBLE:
-            stdscr.addstr(sy, self.player_x, "@")
+            row = ''.join(self.world[idx])
+            stdscr.addstr(i + 1, 0, row)
+        stdscr.addstr(CLIMB_VISIBLE + 1, 0, horiz)
+        sy = self.scroll + CLIMB_VISIBLE - self.player_y
+        if 1 <= sy <= CLIMB_VISIBLE:
+            stdscr.addstr(sy, self.player_x, '@')
         stdscr.refresh()
 
     def run(self, stdscr):
@@ -520,7 +533,7 @@ class IceClimber:
             self.draw(stdscr)
             time.sleep(CLIMB_TICK)
         stdscr.nodelay(False)
-        stdscr.addstr(CLIMB_VISIBLE + 1, 0, "Game Over - press any key")
+        stdscr.addstr(CLIMB_VISIBLE + 2, 0, "Game Over - press any key")
         stdscr.refresh()
         stdscr.getch()
 
