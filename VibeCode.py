@@ -41,6 +41,12 @@ INV_HEIGHT = 20
 INV_TICK = 0.2
 ALIEN_WIDTH = 3  # aliens are drawn wider than one cell
 
+# Ice Climber constants
+CLIMB_WIDTH = 30
+CLIMB_VISIBLE = 20
+CLIMB_JUMP = 3
+CLIMB_TICK = 0.05
+
 # Define the seven standard Tetris pieces using coordinate sets
 PIECES = {
     'I': [
@@ -421,6 +427,104 @@ class SpaceInvaders:
         stdscr.getch()
 
 
+class IceClimber:
+    """Simple vertical climbing game."""
+
+    def __init__(self):
+        self.world = []  # bottom-up rows
+        self.player_x = CLIMB_WIDTH // 2
+        self.player_y = 1
+        self.scroll = 0
+        self.jump_remaining = 0
+        self.generate_rows(CLIMB_VISIBLE + 5)
+
+    def generate_row(self):
+        if not self.world:
+            row = "|" + "=" * CLIMB_WIDTH + "|"
+        else:
+            if random.randint(0, 3) == 0:
+                parts = ["="] * CLIMB_WIDTH
+                gap = random.randint(0, CLIMB_WIDTH - 3)
+                for i in range(3):
+                    parts[gap + i] = " "
+                row = "|" + "".join(parts) + "|"
+            else:
+                row = "|" + " " * CLIMB_WIDTH + "|"
+        self.world.append(row)
+
+    def generate_rows(self, count):
+        for _ in range(count):
+            self.generate_row()
+
+    def cell(self, x, y):
+        while y >= len(self.world):
+            self.generate_row()
+        return self.world[y][x]
+
+    def on_ground(self):
+        if self.player_y == 0:
+            return True
+        return self.cell(self.player_x, self.player_y - 1) == "="
+
+    def move_horiz(self, dx):
+        nx = self.player_x + dx
+        if 0 < nx < CLIMB_WIDTH + 1 and self.cell(nx, self.player_y) == " ":
+            self.player_x = nx
+
+    def jump(self):
+        if self.on_ground():
+            self.jump_remaining = CLIMB_JUMP
+
+    def apply_gravity(self):
+        if self.jump_remaining > 0:
+            ny = self.player_y + 1
+            if self.cell(self.player_x, ny) == " ":
+                self.player_y = ny
+            else:
+                self.jump_remaining = 0
+            self.jump_remaining -= 1
+        elif not self.on_ground():
+            self.player_y -= 1
+
+    def update_scroll(self):
+        target = self.player_y - CLIMB_VISIBLE // 2
+        if target > self.scroll:
+            self.scroll = target
+
+    def draw(self, stdscr):
+        stdscr.clear()
+        for i in range(CLIMB_VISIBLE):
+            idx = self.scroll + CLIMB_VISIBLE - 1 - i
+            row = self.cell(0, idx)
+            stdscr.addstr(i, 0, row)
+        sy = CLIMB_VISIBLE - 1 - (self.player_y - self.scroll)
+        if 0 <= sy < CLIMB_VISIBLE:
+            stdscr.addstr(sy, self.player_x, "@")
+        stdscr.refresh()
+
+    def run(self, stdscr):
+        curses.curs_set(0)
+        stdscr.nodelay(True)
+        while self.player_y >= 0:
+            key = stdscr.getch()
+            if key == curses.KEY_LEFT:
+                self.move_horiz(-1)
+            elif key == curses.KEY_RIGHT:
+                self.move_horiz(1)
+            elif key == curses.KEY_UP:
+                self.jump()
+            elif key == ord("q"):
+                break
+            self.apply_gravity()
+            self.update_scroll()
+            self.draw(stdscr)
+            time.sleep(CLIMB_TICK)
+        stdscr.nodelay(False)
+        stdscr.addstr(CLIMB_VISIBLE + 1, 0, "Game Over - press any key")
+        stdscr.refresh()
+        stdscr.getch()
+
+
 
 def start_menu(stdscr):
     """Display the startup menu and return the selected option index."""
@@ -429,6 +533,7 @@ def start_menu(stdscr):
         "Play Tetris",
         "Play Snake",
         "Play Space Invaders",
+        "Play Ice Climber",
         "Quit",
     ]
     current = 0
@@ -464,6 +569,9 @@ def main(stdscr):
             game = SpaceInvaders()
             game.run(stdscr)
         elif choice == 3:
+            game = IceClimber()
+            game.run(stdscr)
+        elif choice == 4:
             break
         
 
