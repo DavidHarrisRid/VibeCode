@@ -1,0 +1,44 @@
+# VibeCode Games
+
+This repository contains a simple console-based game collection written in
+Python. When you run the program you first see a small menu where you can
+choose to start Tetris, play Snake, play Space Invaders, play Ice Climber, or
+quit. After a game ends you are returned to this menu.
+
+The Space Invaders screen is deliberately wider than the other games so the
+action more closely resembles the classic arcade layout. The invader formation
+is small and begins moving slowly, letting you fire up to two bullets at once
+for a bit more firepower. The aliens themselves are drawn larger than a single
+character so they are easier targets. Each time the invaders descend a row they
+speed up slightly to keep the pressure on. Input repetition now happens twice
+as fast so holding the arrow keys moves the ship sooner.
+
+Ice Climber is a vertical climbing game. Platforms are spaced every two
+rows so they are always within reach of the climber's four-block jump. Each row
+is bordered so you know exactly where the edges are. Jumping breaks the
+platform above you and launches the climber a few rows upward, and you can hold
+a direction key while jumping to steer in midair. As you ascend the game keeps
+generating new rows so the level is effectively endless. Your score rises with
+the highest point you reach. Falling uses a 0.7 second delay so the climber
+drops more gently, and like the other games held inputs repeat more quickly.
+Keep moving upward—if you slip below the bottom of the visible area the game is
+over.
+
+
+The game relies on the `curses` module for drawing. On Windows systems the
+standard Python distribution does not ship with curses. To run the game
+install the [windows-curses](https://pypi.org/project/windows-curses/) package
+first:
+
+```bash
+pip install windows-curses
+```
+
+Then launch the collection with:
+
+```bash
+python VibeCode.py
+```
+
+If you see an error about `curses` being missing, make sure you've installed the
+`windows-curses` package in the same Python environment.
