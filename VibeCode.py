@@ -436,6 +436,7 @@ class IceClimber:
         self.player_y = 1
         self.scroll = 0
         self.jump_remaining = 0
+        self.score = 0
         # number of blank rows until the next platform is added
         self.next_platform = random.randint(1, 2)
         self.generate_rows(CLIMB_VISIBLE + 5)
@@ -459,6 +460,11 @@ class IceClimber:
 
     def generate_rows(self, count):
         for _ in range(count):
+            self.generate_row()
+
+    def ensure_rows(self, top):
+        """Ensure the world has at least ``top`` rows."""
+        while len(self.world) <= top:
             self.generate_row()
 
     def cell(self, x, y):
@@ -504,8 +510,13 @@ class IceClimber:
         target = self.player_y - CLIMB_VISIBLE // 2
         if target > self.scroll:
             self.scroll = target
+        if self.player_y > self.score:
+            self.score = self.player_y
+        # Ensure enough rows exist for the new scroll position
+        self.ensure_rows(self.scroll + CLIMB_VISIBLE)
 
     def draw(self, stdscr):
+        self.ensure_rows(self.scroll + CLIMB_VISIBLE)
         stdscr.clear()
         horiz = '+' + '-' * CLIMB_WIDTH + '+'
         stdscr.addstr(0, 0, horiz)
@@ -517,6 +528,7 @@ class IceClimber:
         sy = self.scroll + CLIMB_VISIBLE - self.player_y
         if 1 <= sy <= CLIMB_VISIBLE:
             stdscr.addstr(sy, self.player_x, '@')
+        stdscr.addstr(CLIMB_VISIBLE + 2, 0, f"Score: {self.score}")
         stdscr.refresh()
 
     def run(self, stdscr):

@@ -16,9 +16,10 @@ Ice Climber is a vertical climbing game. Platforms are spaced every one or two
 rows so they are always within reach of the climber's three-block jump. Each row
 is bordered so you know exactly where the edges are. Jumping breaks the
 platform above you and launches the climber a few rows upward, and you can hold
-a direction key while jumping to steer in midair.
-Keep moving upward—if you slip below the bottom of the visible area the game is
-over.
+a direction key while jumping to steer in midair. As you ascend the game keeps
+generating new rows so the level is effectively endless. Your score rises with
+the highest point you reach. Keep moving upward—if you slip below the bottom of
+the visible area the game is over.
 
 
 The game relies on the `curses` module for drawing. On Windows systems the
